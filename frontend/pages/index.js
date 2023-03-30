@@ -1,5 +1,11 @@
+import { FullPageContainer } from '../components/Containers'
+
 function HomePage() {
-    return <div>Welcome to Next.js!</div>
+  return (
+    <FullPageContainer>
+      <h1>Home Page</h1>
+    </FullPageContainer>
+  )
 }
 
 export default HomePage

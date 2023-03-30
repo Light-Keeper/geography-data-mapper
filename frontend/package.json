@@ -7,13 +7,25 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "prettier": "prettier --write .",
     "export": "next export"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@blueprintjs/core": "^4.17.8",
+    "@blueprintjs/icons": "^4.14.5",
     "next": "^13.2.4",
+    "normalize.css": "^8.0.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "styled-components": "^5.3.9"
+  },
+  "devDependencies": {
+    "eslint": "8.37.0",
+    "eslint-config-next": "13.2.4",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-react-app": "^7.0.1",
+    "prettier": "^2.8.7"
   }
 }
