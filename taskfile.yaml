@@ -22,9 +22,21 @@ tasks:
   'image:run':
     desc: Run the docker image
     cmds:
-      - docker run --rm -p 80:8000 geography-data-mapper:latest
+      - docker run --rm -p 8000:8000 geography-data-mapper:latest
+
+  'image:console':
+    desc: Console into the docker image
+    cmds:
+      - docker run -it --rm -p 8000:8000 geography-data-mapper:latest sh
 
   'image:upload':
     desc: Upload the docker image to the remote machine using SSH
     cmds:
       - docker save geography-data-mapper:latest | ssh {{.UPLOAD_VIA}} 'docker load'
+
+  'build':
+    desc: Build the app
+    cmds:
+      - task: frontend:build
+      - task: app:build
+      - task: image:build
