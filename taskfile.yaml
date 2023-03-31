@@ -1,6 +1,6 @@
 version: '3'
 
-dotenv: ['.env.local']
+dotenv: ['.vadikk.com.env']
 
 includes:
   app:
@@ -10,6 +10,10 @@ includes:
   frontend:
     taskfile: ./frontend/taskfile.yaml
     dir: ./frontend
+
+  infra:
+    taskfile: ./infra/taskfile.yaml
+    dir: ./infra
 
 tasks:
   'image:build':
@@ -29,14 +33,13 @@ tasks:
     cmds:
       - docker run -it --rm -p 8000:8000 geography-data-mapper:latest sh
 
-  'image:upload':
-    desc: Upload the docker image to the remote machine using SSH
-    cmds:
-      - docker save geography-data-mapper:latest | ssh {{.UPLOAD_VIA}} 'docker load'
-
-  'build':
+  build:
     desc: Build the app
     cmds:
       - task: frontend:build
-      - task: app:build
       - task: image:build
+
+  deploy:
+    desc: Deploy the app
+    cmds:
+      - task: infra:deploy

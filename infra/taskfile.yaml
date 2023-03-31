@@ -1,0 +1,26 @@
+version: '3'
+
+tasks:
+  upload:
+    desc: Upload the docker image to the remote machine using SSH
+    cmds:
+      - docker save geography-data-mapper:latest | ssh {{.UPLOAD_VIA}} 'docker load'
+
+  scp:
+    desc: desc copy env and docker-compose files to remote machine
+    cmds:
+      - ssh {{.UPLOAD_VIA}} 'mkdir -p /apps/geography-data-mapper'
+      - scp .env {{.UPLOAD_VIA}}:/apps/geography-data-mapper/.env
+      - scp docker-compose.yaml {{.UPLOAD_VIA}}:/apps/geography-data-mapper/docker-compose.yaml
+
+  run:
+    desc: Run the docker-compose file on the remote machine, restarting if it's already running
+    cmds:
+      - ssh {{.UPLOAD_VIA}} 'cd /apps/geography-data-mapper && docker-compose up -d --force-recreate'
+
+  deploy:
+    desc: Deploy the docker image to the remote machine
+    cmds:
+      - task: scp
+      - task: upload
+      - task: run
