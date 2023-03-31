@@ -5,3 +5,8 @@ tasks:
     desc: Build the project
     cmds:
       - cargo build --release
+
+  run:
+    desc: Run the project
+    cmds:
+      - cargo run
