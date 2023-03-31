@@ -1,0 +1,9 @@
+version: 3
+
+tasks:
+    build:
+        desc: Build the frontend
+        cmds:
+        - npm install
+        - npm run build
+        - npm run export

@@ -8,3 +8,7 @@ edition = "2021"
 [dependencies]
 dotenv = "0.15.0"
 rocket = { version = "=0.5.0-rc.3", features = ["json"] }
+
+[[bin]]
+name = "geography-data-mapper"
+path = "src/main.rs"

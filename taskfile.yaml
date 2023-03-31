@@ -1,0 +1,30 @@
+version: '3'
+
+dotenv: ['.env.local']
+
+includes:
+  app:
+    taskfile: ./app/taskfile.yaml
+    dir: ./app
+
+  frontend:
+    taskfile: ./frontend/taskfile.yaml
+    dir: ./frontend
+
+tasks:
+  'image:build':
+    desc: Build the docker image
+    env:
+      BUILDKIT_PROGRESS: plain
+    cmds:
+      - docker build -t geography-data-mapper:latest -f Dockerfile .
+
+  'image:run':
+    desc: Run the docker image
+    cmds:
+      - docker run --rm -p 80:8000 geography-data-mapper:latest
+
+  'image:upload':
+    desc: Upload the docker image to the remote machine using SSH
+    cmds:
+      - docker save geography-data-mapper:latest | ssh {{.UPLOAD_VIA}} 'docker load'

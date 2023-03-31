@@ -1,11 +1,19 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
-export const FullPageContainer = styled.div`
+
+export const AppLayout = styled(({ children, className }) => {
+  return <div className={className}>{children}</div>
+})`
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
   width: 100vw;
-  background-color: beige;
+  background-color: #f5f5f0;
 `
+
+export const Sidebar = ({ children }) => {
+  return <div>{children}</div>
+}
+
+export const MainContent = ({ children }) => {
+  return <div>{children}</div>
+}

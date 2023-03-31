@@ -1,10 +1,11 @@
-import { FullPageContainer } from '../components/Containers'
+import { AppLayout, Sidebar, MainContent } from '../components/Containers'
 
 function HomePage() {
   return (
-    <FullPageContainer>
-      <h1>Home Page</h1>
-    </FullPageContainer>
+    <AppLayout>
+      <Sidebar/>
+      <MainContent/>
+    </AppLayout>
   )
 }
 
