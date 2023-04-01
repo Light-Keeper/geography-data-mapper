@@ -3,5 +3,21 @@ version: '3'
 services:
   app:
     image: geography-data-mapper:latest
-    ports:
-      - "80:8000"
+    labels:
+      - "traefik.http.routers.app.rule=Host(`${PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.routers.app.middlewares=redirect-to-https"
+
+      # HTTPS
+      - "traefik.http.routers.app-https.rule=Host(`${PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.app-https.entrypoints=websecure"
+      - "traefik.http.routers.app-https.tls=true"
+      - "traefik.http.routers.app-https.tls.certresolver=letsencrypt"
+
+      # Middleware redirect
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+networks:
+  default:
+    external:
+      name: traefik

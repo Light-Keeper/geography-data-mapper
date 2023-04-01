@@ -43,3 +43,9 @@ tasks:
     desc: Deploy the app
     cmds:
       - task: infra:deploy
+
+  all:
+    desc: Build and deploy the app
+    cmds:
+      - task: build
+      - task: deploy
