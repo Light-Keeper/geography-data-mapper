@@ -13,9 +13,13 @@ services:
       - "traefik.http.routers.app-https.entrypoints=websecure"
       - "traefik.http.routers.app-https.tls=true"
       - "traefik.http.routers.app-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.app-https.middlewares=zip"
 
       # Middleware redirect
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+      # Middleware zip
+      - "traefik.http.middlewares.zip.compress=true"
 
 networks:
   default:

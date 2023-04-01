@@ -16,13 +16,16 @@
     "@blueprintjs/colors": "^4.1.21",
     "@blueprintjs/core": "^4.17.8",
     "@blueprintjs/icons": "^4.14.5",
+    "@types/turf": "^3.5.32",
     "leaflet": "^1.9.3",
     "next": "^13.2.4",
     "normalize.css": "^8.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
-    "styled-components": "^5.3.9"
+    "styled-components": "^5.3.9",
+    "swr": "^2.1.1",
+    "turf": "^3.0.14"
   },
   "devDependencies": {
     "eslint": "8.37.0",

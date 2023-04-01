@@ -1,22 +1,42 @@
 import styled from 'styled-components'
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { useEffect } from "react";
+import { MapContainer, TileLayer, useMap } from 'react-leaflet'
+import { useEffect } from 'react'
 import L from 'leaflet'
+import { useDatapoints } from '../models/datapoints'
+import { Colors } from '@blueprintjs/core'
+import * as React from 'react'
+import { dataUrlForIcon } from '../lib/icon'
+import { IconNames } from '@blueprintjs/icons'
+
+const blueIcon = L.icon({
+  iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: Colors.BLUE4 }),
+  iconSize: [20, 20],
+})
+
+const yellowIcon = L.icon({
+  iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: Colors.GOLD4 }),
+  iconSize: [20, 20],
+})
 
 const PointsLayer = () => {
-  const map = useMap();
+  const map = useMap()
+  const { data } = useDatapoints({ datasourceId: 'test' })
+
   useEffect(() => {
-    let markerOptions = { icon: L.icon({
-        iconUrl: '/icons/flag.svg',
-        iconSize: [20, 20],
-      }),
+    if (!data) return
 
-    };
+    let markers = data.map((d) => {
+      return L.marker([d.lat, d.lng], {
+        icon: Math.random() < 0.5 ? blueIcon : yellowIcon,
+        title: d.title
+      })
+    })
 
-    L.marker([49.026638, 31.482904], markerOptions).addTo(map);
-  }, [map]);
+    markers.forEach((m) => m.addTo(map))
+    return () => markers.forEach((m) => m.remove())
+  }, [map, data])
 
-  return null;
+  return null
 }
 
 const Map = styled(({ className }) => {
