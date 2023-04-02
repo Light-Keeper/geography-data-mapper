@@ -7,14 +7,14 @@ export async function getDatasources() {
   return getFakeDatasources()
 }
 
-let toastCache = null
-const toast = () => toastCache ||= Toaster.create({ className: 'z-index-1000' })
+const ssr = typeof window === 'undefined'
+const toast = !ssr && Toaster.create({ className: 'z-index-1000' })
 
 export function useDatasources() {
   return useSwr('/api/datasources', getDatasources, {
     onError: (err) => {
       console.log(err)
-      toast().show({ message: 'Failed to load datasources', intent: 'danger' })
+      toast.show({ message: 'Failed to load datasources', intent: 'danger' })
     },
   })
 }

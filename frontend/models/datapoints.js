@@ -7,15 +7,14 @@ export async function getDatapoints({ datasourceId }) {
   return getFakeDatapoints(datasourceId)
 }
 
-let toastCache = null
-const toast = () => toastCache ||= Toaster.create({ className: 'z-index-1000' })
-
+const ssr = typeof window === 'undefined'
+const toast = !ssr && Toaster.create({ className: 'z-index-1000' })
 
 export function useDatapoints({ datasourceId }) {
   return useSwr(`/api/datapoints/${datasourceId}`, () => getDatapoints({ datasourceId }), {
     onError: (err) => {
       console.error(err)
-      toast().show({ message: `Failed to load datapoints for datasourceId=${datasourceId}`, intent: 'danger' })
+      toast.show({ message: `Failed to load datapoints for datasourceId=${datasourceId}`, intent: 'danger' })
     },
   })
 }
