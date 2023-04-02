@@ -1,4 +1,3 @@
-import styled from 'styled-components'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import { useEffect } from 'react'
 import L from 'leaflet'
@@ -7,6 +6,7 @@ import { Colors } from '@blueprintjs/core'
 import * as React from 'react'
 import { dataUrlForIcon } from '../lib/icon'
 import { IconNames } from '@blueprintjs/icons'
+import css from './map.module.scss'
 
 const blueIcon = L.icon({
   iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: Colors.BLUE4 }),
@@ -39,9 +39,9 @@ const PointsLayer = () => {
   return null
 }
 
-const Map = styled(({ className }) => {
+const Map = () => {
   return (
-    <MapContainer center={[49.026638, 31.482904]} zoom={6} scrollWheelZoom className={className}>
+    <MapContainer center={[49.026638, 31.482904]} zoom={6} scrollWheelZoom className={css.map}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         url='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
@@ -49,9 +49,6 @@ const Map = styled(({ className }) => {
       <PointsLayer />
     </MapContainer>
   )
-})`
-  width: 100%;
-  height: 100%;
-`
+}
 
 export default Map

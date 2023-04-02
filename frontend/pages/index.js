@@ -1,21 +1,24 @@
-import { AppLayout, Sidebar, MainContent } from '../components/Containers'
 import { MapWithNoSSR } from '../components/MapWithNoSSR'
-import { Callout, Intent } from "@blueprintjs/core";
+import { Button, Callout, Intent } from "@blueprintjs/core";
+import css from './containers.module.scss'
 
 function HomePage() {
   return (
-    <AppLayout>
-      <Sidebar>
+    <div className={css.fullpage}>
+      <div className={css.sidebar}>
         <Callout title="Welcome to the Map" icon="info-sign" intent={Intent.PRIMARY}>
           <p>
             Experience the joy of discovering 100 random locations across Ukraine.
           </p>
         </Callout>
-      </Sidebar>
-      <MainContent>
+        <div className={css.buttons}>
+          <Button intent={Intent.PRIMARY} text="Click me" />
+        </div>
+      </div>
+      <div className={css.main}>
         <MapWithNoSSR />
-      </MainContent>
-    </AppLayout>
+      </div>
+    </div>
   )
 }
 
