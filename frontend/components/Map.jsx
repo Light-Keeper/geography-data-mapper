@@ -31,16 +31,18 @@ const PointsLayer = ({ selectedDatasource }) => {
     if (!data) return
 
     let markers = data.map((d) => {
-      let icon = grayIcon;
+      let icon = grayIcon
       if (d.color === 'blue') {
-        icon = blueIcon;
+        icon = blueIcon
       }
       if (d.color === 'yellow') {
-        icon = yellowIcon;
+        icon = yellowIcon
       }
 
       let tooltip = '<b>' + d.name + '</b>'
-      Object.entries(d.tags).map(([k, v]) => `</br>${k}: ${v}`).forEach(t => tooltip += t);
+      Object.entries(d.tags)
+        .map(([k, v]) => `</br>${k}: ${v}`)
+        .forEach((t) => (tooltip += t))
 
       return L.marker([d.lat, d.lng], {
         icon: icon,
@@ -55,9 +57,11 @@ const PointsLayer = ({ selectedDatasource }) => {
   return null
 }
 
+const centerOfUkraine = [49.026638, 31.482904]
+
 const Map = ({ selectedDatasource }) => {
   return (
-    <MapContainer center={[49.026638, 31.482904]} zoom={6} scrollWheelZoom className={css.map}>
+    <MapContainer center={centerOfUkraine} zoom={6} scrollWheelZoom className={css.map}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         url='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
