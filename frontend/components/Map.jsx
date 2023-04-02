@@ -18,17 +18,30 @@ const yellowIcon = L.icon({
   iconSize: [20, 20],
 })
 
-const PointsLayer = () => {
+const grayIcon = L.icon({
+  iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: Colors.GRAY4 }),
+  iconSize: [20, 20],
+})
+
+const PointsLayer = ({ selectedDatasource }) => {
   const map = useMap()
-  const { data } = useDatapoints({ datasourceId: 'test' })
+  const { data } = useDatapoints({ datasourceId: selectedDatasource.id })
 
   useEffect(() => {
     if (!data) return
 
     let markers = data.map((d) => {
+      let icon = grayIcon;
+      if (d.color === 'blue') {
+        icon = blueIcon;
+      }
+      if (d.color === 'yellow') {
+        icon = yellowIcon;
+
+      }
       return L.marker([d.lat, d.lng], {
-        icon: Math.random() < 0.5 ? blueIcon : yellowIcon,
-        title: d.title
+        icon: icon,
+        title: d.title,
       })
     })
 
@@ -39,14 +52,14 @@ const PointsLayer = () => {
   return null
 }
 
-const Map = () => {
+const Map = ({ selectedDatasource }) => {
   return (
     <MapContainer center={[49.026638, 31.482904]} zoom={6} scrollWheelZoom className={css.map}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         url='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
       />
-      <PointsLayer />
+      {selectedDatasource && <PointsLayer selectedDatasource={selectedDatasource} />}
     </MapContainer>
   )
 }
