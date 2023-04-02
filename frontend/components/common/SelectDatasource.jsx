@@ -11,7 +11,7 @@ const SelectDatasource = ({ selectedDatasource, setSelectedDatasource }) => {
 
   useEffect(() => {
     if (!someSelection && data?.length) {
-      setSelectedDatasource(data[0])
+      //setSelectedDatasource(data[0])
     }
   }, [data, someSelection, setSelectedDatasource]);
 
