@@ -42,6 +42,9 @@ const getFakeDatapointsNoCache = (id) => {
       ...datapoint,
       id: i,
       name: `datapoint ${i}`,
+      tags: {
+        population: Math.round(Math.random() * 1000000),
+      },
       ...randomCoordinatesIn(
         /* bounding box of Ukraine */
         [22.1, 44.4, 40.2, 52.4],

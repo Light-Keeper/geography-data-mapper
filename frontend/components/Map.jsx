@@ -37,12 +37,15 @@ const PointsLayer = ({ selectedDatasource }) => {
       }
       if (d.color === 'yellow') {
         icon = yellowIcon;
-
       }
+
+      let tooltip = '<b>' + d.name + '</b>'
+      Object.entries(d.tags).map(([k, v]) => `</br>${k}: ${v}`).forEach(t => tooltip += t);
+
       return L.marker([d.lat, d.lng], {
         icon: icon,
-        title: d.title,
-      })
+        title: d.name,
+      }).bindTooltip(tooltip)
     })
 
     markers.forEach((m) => m.addTo(map))
