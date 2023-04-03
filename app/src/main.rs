@@ -1,20 +1,27 @@
-#[macro_use] extern crate rocket;
+mod api;
+mod db;
+mod models;
+mod schema;
+
+#[macro_use]
+extern crate rocket;
+
 use rocket::fs::FileServer;
-
 use std::env;
-
-#[get("/hello")]
-fn hello() -> &'static str {
-    "Hello, world!"
-}
 
 #[rocket::main]
 #[allow(unused_must_use)]
 async fn main() {
     dotenv::dotenv().ok();
-
+    let pool = db::prepare_database(&env::var("SQLITE_DB_PATH").unwrap());
+    let api = routes![api::hello::hello, api::datasources::datasources,];
     rocket::build()
-        .mount("/", FileServer::from(env::var("STATIC_FILES_DIR").unwrap() + "/"))
-        .mount("/", routes![hello])
-        .launch().await;
+        .manage(pool)
+        .mount(
+            "/",
+            FileServer::from(env::var("STATIC_FILES_DIR").unwrap() + "/"),
+        )
+        .mount("/api", api)
+        .launch()
+        .await;
 }

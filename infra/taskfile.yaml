@@ -10,6 +10,7 @@ tasks:
     desc: desc copy env and docker-compose files to remote machine
     cmds:
       - ssh {{.UPLOAD_VIA}} 'mkdir -p /apps/geography-data-mapper'
+      - ssh {{.UPLOAD_VIA}} 'touch /apps/geography-data-mapper/geomap.db'
       - scp .env {{.UPLOAD_VIA}}:/apps/geography-data-mapper/.env
       - scp docker-compose.yaml {{.UPLOAD_VIA}}:/apps/geography-data-mapper/docker-compose.yaml
 
