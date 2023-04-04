@@ -1,27 +1,26 @@
-mod api;
+mod config;
 mod db;
+mod generator;
 mod models;
 mod schema;
+mod server;
 
 #[macro_use]
 extern crate rocket;
 
-use rocket::fs::FileServer;
-use std::env;
+use crate::config::Commands;
 
 #[rocket::main]
-#[allow(unused_must_use)]
 async fn main() {
     dotenv::dotenv().ok();
-    let pool = db::prepare_database(&env::var("SQLITE_DB_PATH").unwrap());
-    let api = routes![api::hello::hello, api::datasources::datasources,];
-    rocket::build()
-        .manage(pool)
-        .mount(
-            "/",
-            FileServer::from(env::var("STATIC_FILES_DIR").unwrap() + "/"),
-        )
-        .mount("/api", api)
-        .launch()
-        .await;
+    let app_config = config::parse_config();
+    let pool = db::prepare_database(&app_config.sqlite_db_path);
+
+    match app_config.cli.command {
+        Commands::Server => server::start_server(app_config, pool).await,
+
+        Commands::Generate { name, count, color } => {
+            generator::generate(name, count, color, pool).await
+        }
+    }
 }

@@ -19,4 +19,4 @@ ENV STATIC_FILES_DIR=/app/frontend
 ENV SQLITE_DB_PATH=/data/geomap.db
 ENV ROCKET_ADDRESS=0.0.0.0
 EXPOSE 8000
-CMD ["/app/geography-data-mapper"]
+CMD ["/app/geography-data-mapper", "server"]
