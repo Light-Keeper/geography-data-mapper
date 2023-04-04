@@ -12,7 +12,7 @@ function HomePage() {
       <div className={css.sidebar}>
         <Callout title="Welcome to the Map" icon="info-sign" intent={Intent.PRIMARY}>
           <p>
-            Experience the joy of discovering some random points across Ukraine.
+            Experience the joy of discovering some random points across the Globe.
           </p>
         </Callout>
         <div className={css.buttons}>

@@ -4,10 +4,10 @@ diesel::table! {
     datapoints (id) {
         id -> Integer,
         datasource_id -> Integer,
-        longitude -> Float,
-        latitude -> Float,
+        lng -> Float,
+        lat -> Float,
         name -> Text,
-        color -> Text,
+        tags -> Text,
     }
 }
 
@@ -20,4 +20,7 @@ diesel::table! {
 
 diesel::joinable!(datapoints -> datasources (datasource_id));
 
-diesel::allow_tables_to_appear_in_same_query!(datapoints, datasources,);
+diesel::allow_tables_to_appear_in_same_query!(
+    datapoints,
+    datasources,
+);

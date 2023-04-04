@@ -6,19 +6,19 @@ const datasources = [
     id: 1,
     name: '80 random yellow pointers',
     count: 80,
-    init: () => ({ color: 'yellow' }),
+    init: () => ({ tags: { color: 'yellow' } }),
   },
   {
     id: 2,
     name: '70 random blue pointers',
     count: 70,
-    init: () => ({ color: 'blue' }),
+    init: () => ({ tags: { color: 'blue' } }),
   },
   {
     id: 3,
     name: '100 random yellow-blue pointers',
     count: 100,
-    init: () => ({ color: Math.random() > 0.5 ? 'yellow' : 'blue' }),
+    init: () => ({ tags: { color: Math.random() > 0.5 ? 'yellow' : 'blue' } }),
   },
 ]
 
@@ -54,9 +54,9 @@ const getFakeDatapointsNoCache = (id) => {
   return datapoints
 }
 
-const cache = {};
+const cache = {}
 
-export const getFakeDatapoints = id => cache[id] ||= getFakeDatapointsNoCache(id)
+export const getFakeDatapoints = (id) => (cache[id] ||= getFakeDatapointsNoCache(id))
 
 function randomCoordinatesIn([minLng, minLat, maxLng, maxLat]) {
   let attempt = {

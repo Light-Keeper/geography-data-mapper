@@ -1,10 +1,9 @@
 import useSwr from 'swr'
-import { getFakeDatapoints } from './fake'
 import { Toaster } from '@blueprintjs/core'
+import { apiRequest } from "../lib/api";
 
 export async function getDatapoints({ datasourceId }) {
-  //return fetch(`/api/datapoints/${datasourceId}`).then((res) => res.json())
-  return getFakeDatapoints(datasourceId)
+  return await apiRequest('GET', '/api/datapoints?datasource_id=' + datasourceId)
 }
 
 const ssr = typeof window === 'undefined'

@@ -32,10 +32,10 @@ const PointsLayer = ({ selectedDatasource }) => {
 
     let markers = data.map((d) => {
       let icon = grayIcon
-      if (d.color === 'blue') {
+      if (d.tags.color === 'blue') {
         icon = blueIcon
       }
-      if (d.color === 'yellow') {
+      if (d.tags.color === 'yellow') {
         icon = yellowIcon
       }
 

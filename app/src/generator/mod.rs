@@ -1,6 +1,7 @@
 use crate::db::DbPool;
 use diesel::{insert_into, sql_function, sql_types, Connection, ExpressionMethods, RunQueryDsl};
 use rand::Rng;
+use serde_json::json;
 
 sql_function!(fn last_insert_rowid() -> sql_types::Integer);
 
@@ -34,10 +35,10 @@ pub async fn generate(name: String, count: u32, color: String, pool: DbPool) {
             insert_into(dsl2::datapoints)
                 .values((
                     dsl2::name.eq(format!("{}-{}", &name, i)),
-                    dsl2::color.eq(&color),
                     dsl2::datasource_id.eq(row_id),
-                    dsl2::latitude.eq(lat),
-                    dsl2::longitude.eq(lon),
+                    dsl2::lat.eq(lat),
+                    dsl2::lng.eq(lon),
+                    dsl2::tags.eq(json!({"color": color}).to_string()),
                 ))
                 .execute(conn)
                 .expect("Failed to insert new datapoint");
