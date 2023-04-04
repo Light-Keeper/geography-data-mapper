@@ -19,8 +19,8 @@ async fn main() {
     match app_config.cli.command {
         Commands::Server => server::start_server(app_config, pool).await,
 
-        Commands::Generate { name, count, color } => {
-            generator::generate(name, count, color, pool).await
+        Commands::Generate { name, count, color, country } => {
+            generator::generate(name, count, color, country, pool).await
         }
     }
 }

@@ -33,6 +33,10 @@ pub enum Commands {
         /// name of datasource
         #[arg(long)]
         name: String,
+
+        /// Country where points will be generated
+        #[arg(long)]
+        country: String,
     },
 }
 

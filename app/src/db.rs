@@ -4,7 +4,7 @@ use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use r2d2::Pool;
 use std::path::Path;
 
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./priv/migrations");
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
