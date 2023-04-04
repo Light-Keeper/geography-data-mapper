@@ -1,5 +1,5 @@
 use crate::db::DbPool;
-use diesel::{insert_into, sql_function, sql_types, ExpressionMethods, RunQueryDsl, Connection};
+use diesel::{insert_into, sql_function, sql_types, Connection, ExpressionMethods, RunQueryDsl};
 use rand::Rng;
 
 sql_function!(fn last_insert_rowid() -> sql_types::Integer);
@@ -22,7 +22,9 @@ pub async fn generate(name: String, count: u32, color: String, pool: DbPool) {
             .execute(conn)
             .expect("Failed to insert new datasource");
 
-        let row_id: i32 = diesel::select(last_insert_rowid()).get_result(conn).unwrap();
+        let row_id: i32 = diesel::select(last_insert_rowid())
+            .get_result(conn)
+            .unwrap();
 
         use crate::schema::datapoints::dsl as dsl2;
 
@@ -41,5 +43,6 @@ pub async fn generate(name: String, count: u32, color: String, pool: DbPool) {
                 .expect("Failed to insert new datapoint");
         }
         Ok(())
-    }).unwrap()
+    })
+    .unwrap()
 }

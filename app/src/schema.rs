@@ -20,7 +20,4 @@ diesel::table! {
 
 diesel::joinable!(datapoints -> datasources (datasource_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    datapoints,
-    datasources,
-);
+diesel::allow_tables_to_appear_in_same_query!(datapoints, datasources,);

@@ -11,11 +11,12 @@ pub fn datapoints(datasource_id: Option<u32>, db: &State<DbPool>) -> Json<Vec<Da
     let mut conn = db.get().unwrap();
 
     let v = if let Some(id) = datasource_id {
-        dsl::datapoints.filter(dsl::datasource_id.eq(id as i32)).load(&mut conn)
+        dsl::datapoints
+            .filter(dsl::datasource_id.eq(id as i32))
+            .load(&mut conn)
     } else {
         dsl::datapoints.load(&mut conn)
     };
-
 
     return Json(v.unwrap());
 }
