@@ -25,3 +25,17 @@ tasks:
       - task: scp
       - task: upload
       - task: run
+
+  pulldb:
+    desc: Pull the database from the remote machine
+    cmds:
+      - scp {{.UPLOAD_VIA}}:/apps/geography-data-mapper/geomap.db ../dev-data/prod-geomap.db
+
+  pushdb:
+    desc: Push the database to the remote machine
+    cmds:
+      - scp ../dev-data/prod-geomap.db {{.UPLOAD_VIA}}:/apps/geography-data-mapper/geomap-new.db
+      - ssh {{.UPLOAD_VIA}} 'cd /apps/geography-data-mapper && docker-compose stop'
+      - ssh {{.UPLOAD_VIA}} 'mv /apps/geography-data-mapper/geomap.db /apps/geography-data-mapper/geomap.db.bak'
+      - ssh {{.UPLOAD_VIA}} 'mv /apps/geography-data-mapper/geomap-new.db /apps/geography-data-mapper/geomap.db'
+      - ssh {{.UPLOAD_VIA}} 'cd /apps/geography-data-mapper && docker-compose start'
