@@ -39,3 +39,9 @@ tasks:
       - ssh {{.UPLOAD_VIA}} 'mv /apps/geography-data-mapper/geomap.db /apps/geography-data-mapper/geomap.db.bak'
       - ssh {{.UPLOAD_VIA}} 'mv /apps/geography-data-mapper/geomap-new.db /apps/geography-data-mapper/geomap.db'
       - ssh {{.UPLOAD_VIA}} 'cd /apps/geography-data-mapper && docker-compose start'
+
+  pushdevdb:
+    desc: Push the development database to the remote machine
+    cmds:
+      - cp ../dev-data/db.sqlite ../dev-data/prod-geomap.db
+      - task: pushdb
