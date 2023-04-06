@@ -8,7 +8,6 @@ use crate::db::DbPool;
 pub fn generate(name: String, count: usize, color: String, country: String, pool: DbPool) -> anyhow::Result<()> {
     let mut conn = pool.get()?;
 
-    //language=SQLite
     let query = r#"
         SELECT gf.geometry, gf.name, gf.type, gf.bbox
         FROM geo_feature_property p join geo_feature gf on gf.id = p.geo_feature_id
@@ -45,7 +44,6 @@ pub fn generate(name: String, count: usize, color: String, country: String, pool
         .take(count);
 
     for (x, y) in points {
-        //language=SQLite
         let datapoint_id: usize = tx.query_row(r#"
             INSERT INTO datapoints (dataset_id, lng, lat)
             VALUES (?1, ?2, ?3)
