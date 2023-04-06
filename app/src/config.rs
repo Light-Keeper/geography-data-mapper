@@ -1,5 +1,5 @@
 use anyhow::Context;
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 use std::env;
 
 #[derive(Debug)]
@@ -14,11 +14,6 @@ pub struct AppConfig {
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum ImportFormat {
-    GeoJSON,
 }
 
 #[derive(Subcommand, Debug)]
@@ -53,14 +48,22 @@ pub enum Commands {
     },
 
     // import data from external formats
-    Import {
+    ImportGeoJSON {
         /// file with data to import
         file: String,
-
-        /// kind of data
-        #[arg(long)]
-        format: ImportFormat,
     },
+
+    // import data from external formats
+    ImportGeoNames {
+        /// name of dataset
+        #[arg(long)]
+        name: String,
+
+        /// file with data to import
+        file: String,
+    },
+
+
 }
 
 pub fn parse_config() -> anyhow::Result<AppConfig> {

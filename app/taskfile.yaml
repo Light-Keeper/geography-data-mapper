@@ -10,7 +10,10 @@ tasks:
     desc: Clean the project
     cmds:
       - cargo run -- migrate --clean
-      - cargo run -- import --format geo-json ../dev-data/ne_110m_admin_0_countries.json
+      - cargo run -- import-geo-json ../dev-data/ne_110m_admin_0_countries.json
+      - task: generate
+      - task: generate
+      - task: generate
 
   generate:
     vars:
@@ -28,3 +31,7 @@ tasks:
         --country {{ $country }}
         --name "{{ $name }}"
         --color "{{ $color }}"
+
+  cities:
+    cmds:
+      - cargo run -- import-geo-names  --name="Big cities" ../dev-data/cities15000.txt

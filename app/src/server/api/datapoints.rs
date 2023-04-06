@@ -7,11 +7,18 @@ use crate::server::dto::{Datapoint, Page};
 #[get("/datapoints?<dataset>")]
 pub fn datapoints(dataset: u32, db: &State<DbPool>) -> Json<Page<Datapoint>> {
     let conn = db.get().unwrap();
+
     let mut statemet = conn.prepare(r#"
             SELECT d.lat, d.lng, '{' || GROUP_CONCAT( json_quote(a.name) || ':' || json_quote(a.value), ',' ) || '}'
             FROM datapoints d
                 JOIN attributes a on a.datapoint_id = d.id
-            WHERE d.dataset_id = ?1
+            WHERE d.id in (
+                    select datapoint_id
+                    from attributes at
+                    where at.dataset_id = ?1
+                    order by value desc
+                    limit 1000
+                )
             GROUP BY d.id
             "#).unwrap();
 

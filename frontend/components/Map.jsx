@@ -17,7 +17,7 @@ function buildMarker(d) {
       yellow: Colors.GOLD4,
       green: Colors.GREEN4,
       orange: Colors.ORANGE1,
-    }[d.tags.Color] || Colors.GRAY4
+    }[d.tags.Color] || Colors.CERULEAN5
 
   let icon = L.icon({
     iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: color }),

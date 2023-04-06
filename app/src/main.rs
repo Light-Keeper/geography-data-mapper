@@ -26,7 +26,11 @@ async fn main() -> anyhow::Result<()> {
             country,
         } => generator::generate(name, count, color, country, pool)?,
 
-        Commands::Import { file, format } => importer::import(file, format, pool)?,
+        Commands::ImportGeoJSON { file } =>
+            importer::geojson::import_geojson(file, pool)?,
+
+        Commands::ImportGeoNames { name, file } =>
+            importer::geonames::import_geonames(file, name, pool)?,
     }
 
     Ok(())

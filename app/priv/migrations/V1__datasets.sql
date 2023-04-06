@@ -25,7 +25,7 @@ CREATE TABLE attributes
     dataset_id   INTEGER NOT NULL,
     datapoint_id INTEGER NOT NULL,
     name         TEXT    NOT NULL,
-    value        TEXT    NOT NULL,
+    value        REAL    NOT NULL,
     FOREIGN KEY (dataset_id) REFERENCES datasets (id),
     FOREIGN KEY (datapoint_id) REFERENCES datapoints (id)
 );
