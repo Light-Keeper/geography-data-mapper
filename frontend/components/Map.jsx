@@ -8,20 +8,32 @@ import { dataUrlForIcon } from '../lib/icon'
 import { IconNames } from '@blueprintjs/icons'
 import css from './map.module.scss'
 
-const blueIcon = L.icon({
-  iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: Colors.BLUE4 }),
-  iconSize: [20, 20],
-})
+function buildMarker(d) {
+  const { Name, ...rest } = d.tags
 
-const yellowIcon = L.icon({
-  iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: Colors.GOLD4 }),
-  iconSize: [20, 20],
-})
+  let color =
+    {
+      blue: Colors.BLUE4,
+      yellow: Colors.GOLD4,
+      green: Colors.GREEN4,
+      orange: Colors.ORANGE1,
+    }[d.tags.Color] || Colors.GRAY4
 
-const grayIcon = L.icon({
-  iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: Colors.GRAY4 }),
-  iconSize: [20, 20],
-})
+  let icon = L.icon({
+    iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: color }),
+    iconSize: [20, 20],
+  })
+
+  let tooltip = '<b>' + Name + '</b>'
+  Object.entries(rest)
+    .map(([k, v]) => `</br>${k}: ${v}`)
+    .forEach((t) => (tooltip += t))
+
+  return L.marker([d.lat, d.lng], {
+    icon: icon,
+    title: d.name,
+  }).bindTooltip(tooltip)
+}
 
 const PointsLayer = ({ selectedDatasource }) => {
   const map = useMap()
@@ -29,27 +41,7 @@ const PointsLayer = ({ selectedDatasource }) => {
 
   useEffect(() => {
     if (!data) return
-
-    let markers = data.map((d) => {
-      let icon = grayIcon
-      if (d.tags.color === 'blue') {
-        icon = blueIcon
-      }
-      if (d.tags.color === 'yellow') {
-        icon = yellowIcon
-      }
-
-      let tooltip = '<b>' + d.name + '</b>'
-      Object.entries(d.tags)
-        .map(([k, v]) => `</br>${k}: ${v}`)
-        .forEach((t) => (tooltip += t))
-
-      return L.marker([d.lat, d.lng], {
-        icon: icon,
-        title: d.name,
-      }).bindTooltip(tooltip)
-    })
-
+    let markers = data.map(buildMarker)
     markers.forEach((m) => m.addTo(map))
     return () => markers.forEach((m) => m.remove())
   }, [map, data])

@@ -1,7 +1,30 @@
 version: 3
 
 tasks:
-  run:
+  server:
     desc: Run the project
     cmds:
-      - cargo run
+      - cargo run -- server
+
+  reset:
+    desc: Clean the project
+    cmds:
+      - cargo run -- migrate --clean
+      - cargo run -- import --format geo-json ../dev-data/ne_110m_admin_0_countries.json
+
+  generate:
+    vars:
+      COUNTRIES: Ukraine Poland USA
+      COLORS: yellow blue red green
+    cmds:
+      - cargo run -- generate
+        {{ $count := randInt 20 100 }}
+        {{ $countries := regexSplit " " .COUNTRIES -1 }}
+        {{ $colors := regexSplit " " .COLORS -1 }}
+        {{ $country := index $countries (randInt 0 (len $countries)) }}
+        {{ $color := index $colors (randInt 0 (len $colors)) }}
+        {{ $name := printf "%v random %v points in %v" $count $color $country }} 
+        --count {{ $count }}
+        --country {{ $country }}
+        --name "{{ $name }}"
+        --color "{{ $color }}"

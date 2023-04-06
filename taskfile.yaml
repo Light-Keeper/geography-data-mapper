@@ -26,7 +26,10 @@ tasks:
   'image:run':
     desc: Run the docker image
     cmds:
-      - docker run --rm -p 8000:8000 geography-data-mapper:latest
+      - docker run --rm -p 8000:8000
+        --volume $(pwd)/dev-data/db.sqlite:/data/geomap.db
+        geography-data-mapper:latest
+
 
   'image:console':
     desc: Console into the docker image

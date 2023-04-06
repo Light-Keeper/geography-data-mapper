@@ -1,4 +1,5 @@
-use clap::{Parser, Subcommand};
+use anyhow::Context;
+use clap::{Parser, Subcommand, ValueEnum};
 use std::env;
 
 #[derive(Debug)]
@@ -15,6 +16,11 @@ pub struct Cli {
     pub command: Commands,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum ImportFormat {
+    GeoJSON,
+}
+
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// starts server
@@ -24,7 +30,7 @@ pub enum Commands {
     Generate {
         /// number of points to generate
         #[arg(long, default_value = "100")]
-        count: u32,
+        count: usize,
 
         /// color of points. Separate with slash to pick a random color from the list
         #[arg(long, default_value = "yellow/blue")]
@@ -38,14 +44,31 @@ pub enum Commands {
         #[arg(long)]
         country: String,
     },
+
+    /// run all pending migrations
+    Migrate {
+        /// clean entire database and run migrations from scratch. it will delete all the data!!!
+        #[arg(long)]
+        clean: bool,
+    },
+
+    // import data from external formats
+    Import {
+        /// file with data to import
+        file: String,
+
+        /// kind of data
+        #[arg(long)]
+        format: ImportFormat,
+    },
 }
 
-pub fn parse_config() -> AppConfig {
+pub fn parse_config() -> anyhow::Result<AppConfig> {
     let cli = Cli::parse();
 
-    AppConfig {
-        sqlite_db_path: env::var("SQLITE_DB_PATH").expect("SQLITE_DB_PATH not set"),
-        static_files_dir: env::var("STATIC_FILES_DIR").expect("STATIC_FILES_DIR not set"),
+    Ok(AppConfig {
+        sqlite_db_path: env::var("SQLITE_DB_PATH").context("SQLITE_DB_PATH not set")?,
+        static_files_dir: env::var("STATIC_FILES_DIR").context("STATIC_FILES_DIR not set")?,
         cli,
-    }
+    })
 }

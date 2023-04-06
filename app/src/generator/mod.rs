@@ -1,52 +1,71 @@
-mod geogen;
-
+use anyhow::anyhow;
+use geo::Contains;
+use geo_types::Coord;
+use geojson::GeoJson;
+use rand::Rng;
 use crate::db::DbPool;
-use diesel::{insert_into, sql_function, sql_types, Connection, ExpressionMethods, RunQueryDsl, SqliteConnection};
-use diesel::r2d2::ConnectionManager;
-use r2d2::PooledConnection;
-use serde_json::json;
-use crate::generator::geogen::GeoGen;
 
-sql_function!(fn last_insert_rowid() -> sql_types::Integer);
+pub fn generate(name: String, count: usize, color: String, country: String, pool: DbPool) -> anyhow::Result<()> {
+    let mut conn = pool.get()?;
 
-type Conn = PooledConnection<ConnectionManager<SqliteConnection>>;
+    //language=SQLite
+    let query = r#"
+        SELECT gf.geometry, gf.name, gf.type, gf.bbox
+        FROM geo_feature_property p join geo_feature gf on gf.id = p.geo_feature_id
+        WHERE p.value = ?1 AND p.key LIKE 'NAME_%'
+        LIMIT  1"#;
 
-pub async fn generate(name: String, count: u32, color: String, country: String, pool: DbPool) {
-    let conn = &mut pool.get().unwrap();
-    conn.transaction::<(), diesel::result::Error, _>(
-        |conn| {
-            generate_in_transaction(conn, name, count, color, country); Ok(()) }
-    ).unwrap()
-}
+    let (geo, can_name, tp, bbox) =
+        conn.query_row(query,
+                       (&country, ),
+                       |row| Ok((
+                           row.get::<_, String>(0)?,
+                           row.get::<_, String>(1)?,
+                           row.get::<_, String>(2)?,
+                           row.get::<_, String>(3)?,
+                       )))
+            .map_err(|e| anyhow!("Failed to find county by name. {}", e))?;
 
-fn generate_in_transaction(conn: &mut Conn, name: String, count: u32, color: String, country: String) {
-    use crate::schema::datasources::dsl;
+    println!("Generating {} random points for {} {}", count, tp, can_name);
 
-    insert_into(dsl::datasources)
-        .values(dsl::name.eq(&name))
-        .execute(conn)
-        .expect("Failed to insert new datasource");
+    let tx = conn.transaction()?;
 
-    let row_id: i32 = diesel::select(last_insert_rowid())
-        .get_result(conn)
-        .unwrap();
+    let dataset_id: usize = tx.query_row(r#"
+        INSERT INTO datasets (name)
+        VALUES (?1)
+        RETURNING id"#, (name, ), |r| r.get(0))?;
 
-    use crate::schema::datapoints::dsl as dsl2;
+    let geometry: geo_types::Geometry<f32> = serde_json::from_str::<GeoJson>(&geo)?.try_into()?;
+    let mut rng = rand::thread_rng();
+    let (minx, miny, maxx, maxy) = serde_json::from_str::<(f32, f32, f32, f32)>(&bbox)?;
 
-    let generator = GeoGen::new(&country);
+    let points = (0..)
+        .map(|_| (rng.gen_range(minx..=maxx), rng.gen_range(miny..=maxy)))
+        .filter(|&(x, y)| geometry.contains(&Coord { x, y }))
+        .take(count);
 
-    for i in 0..count {
-        let (lng, lat) = generator.random_point();
+    for (x, y) in points {
+        //language=SQLite
+        let datapoint_id: usize = tx.query_row(r#"
+            INSERT INTO datapoints (dataset_id, lng, lat)
+            VALUES (?1, ?2, ?3)
+            RETURNING id"#, (dataset_id, x, y), |r| r.get(0))?;
 
-        insert_into(dsl2::datapoints)
-            .values((
-                dsl2::name.eq(format!("{}-{}", &name, i)),
-                dsl2::datasource_id.eq(row_id),
-                dsl2::lat.eq(lat),
-                dsl2::lng.eq(lng),
-                dsl2::tags.eq(json!({"color": color}).to_string()),
-            ))
-            .execute(conn)
-            .expect("Failed to insert new datapoint");
+        tx.execute(r#"
+            INSERT INTO attributes (dataset_id, datapoint_id, name, value)
+            VALUES (?1, ?2, ?3, ?4)"#, (
+            dataset_id, datapoint_id, "Name", format!("Datapoint {}", datapoint_id))
+        )?;
+
+        tx.execute(r#"
+            INSERT INTO attributes (dataset_id, datapoint_id, name, value)
+            VALUES (?1, ?2, ?3, ?4)"#, (
+            dataset_id, datapoint_id, "Color", &color)
+        )?;
     }
+
+    tx.commit()?;
+    Ok(())
 }
+
+

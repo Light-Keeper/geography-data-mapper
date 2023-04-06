@@ -3,7 +3,9 @@ import { Toaster } from '@blueprintjs/core'
 import { apiRequest } from "../lib/api";
 
 export async function getDatapoints({ datasourceId }) {
-  return await apiRequest('GET', '/api/datapoints?datasource_id=' + datasourceId)
+  const page = await apiRequest('GET', '/api/datapoints?dataset=' + datasourceId)
+  console.log(page)
+  return page.data;
 }
 
 const ssr = typeof window === 'undefined'

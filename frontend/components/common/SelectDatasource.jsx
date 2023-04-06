@@ -15,6 +15,8 @@ const SelectDatasource = ({ selectedDatasource, setSelectedDatasource }) => {
     }
   }, [data, someSelection, setSelectedDatasource]);
 
+  let disabled = isLoading || !data?.length
+
   return (
     <Select2
       popoverProps={{ minimal: true, usePortal: false }}
@@ -31,7 +33,7 @@ const SelectDatasource = ({ selectedDatasource, setSelectedDatasource }) => {
       onItemSelect={setSelectedDatasource}
       filterable={false}
     >
-      <Button text={text} rightIcon='caret-down' loading={isLoading} />
+      <Button text={text} rightIcon='caret-down' loading={isLoading} disabled={disabled} />
     </Select2>
   )
 }
