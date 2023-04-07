@@ -3,7 +3,14 @@ import { Toaster } from '@blueprintjs/core'
 import { apiRequest } from "../lib/api";
 
 export async function getDatapoints({ datasourceId }) {
-  const page = await apiRequest('GET', '/api/datapoints?dataset=' + datasourceId)
+  //TODO: properly implement sorting.
+  // for not it is just a hack for datasource 4
+  let path = '/api/datapoints?dataset=' + datasourceId;
+  if (datasourceId === 4) {
+    path += '&order_by=Population:desc&limit=500'
+  }
+
+  const page = await apiRequest('GET', path)
   console.log(page)
   return page.data;
 }

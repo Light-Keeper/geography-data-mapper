@@ -113,8 +113,6 @@ impl QueryProcessor<'_> {
     }
 }
 
-
-
 #[get("/datapoints?<qparams..>")]
 pub fn datapoints(qparams: QueryProcessor, db: &State<DbPool>) -> Json<Page<Datapoint>> {
     let connection = db.get().unwrap();
