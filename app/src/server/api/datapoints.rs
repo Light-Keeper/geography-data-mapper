@@ -1,10 +1,11 @@
-use crate::db::DbPool;
+use r2d2::PooledConnection;
+use crate::db::{DbPool, SqliteConnectionManager};
 use rocket::serde::json::Json;
 use rocket::State;
 use serde_json::value::RawValue;
 use crate::server::dto::{Datapoint, Page};
 use rocket::form::Form;
-use rusqlite::params;
+use rusqlite::{params, Params, params_from_iter, Row, Rows, Statement, ToSql};
 use serde::de::Error;
 
 #[derive(Debug, FromForm)]
@@ -16,12 +17,13 @@ pub struct QueryProcessor<'a> {
     pub to_lng: Option<f32>,
     pub from_lat: Option<f32>,
     pub to_lat: Option<f32>,
+    pub dataset: i32,
 }
 
-#[get("/datapoints?<dataset>&<qparams..>")]
-pub fn datapoints(dataset: u32, qparams: QueryProcessor, db: &State<DbPool>) -> Json<Page<Datapoint>> {
-    //language=SQLite
-    let query = r#"
+impl QueryProcessor<'_> {
+    pub fn query(&self) -> (String, Vec<&dyn ToSql>) {
+        //language=SQLite
+        let query = r#"
         SELECT
             d.lat,
             d.lng,
@@ -40,13 +42,29 @@ pub fn datapoints(dataset: u32, qparams: QueryProcessor, db: &State<DbPool>) -> 
         OFFSET ?4
         "#;
 
-    let offset = qparams.offset.unwrap_or(0);
-    let limit = qparams.limit.unwrap_or(100);
-    let order_by = qparams.order_by.unwrap();
 
+        let dataset = &self.dataset;
+        let order_by = self.order_by.unwrap();
+        let limit = self.limit.unwrap_or(100);
+        let offset = self.offset.unwrap_or(0);
+
+        (
+            String::from(query),
+            vec![
+                dataset as &dyn ToSql,
+                order_by as &dyn ToSql
+            ]
+        )
+    }
+}
+
+#[get("/datapoints?<qparams..>")]
+pub fn datapoints(qparams: QueryProcessor, db: &State<DbPool>) -> Json<Page<Datapoint>> {
     let connection = db.get().unwrap();
-    let mut stmt = connection.prepare(query).unwrap();
-    let mut rows = stmt.query(params![dataset,order_by,limit,offset]).unwrap();
+    let (query, params) = qparams.query();
+
+    let mut stmt = connection.prepare(&query).unwrap();
+    let rows = stmt.query(params.as_slice()).unwrap();
 
     let vec1 = rows
         .mapped(|r| Ok(Datapoint {
