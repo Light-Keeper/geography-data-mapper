@@ -11,13 +11,29 @@ import css from './map.module.scss'
 function buildMarker(d) {
   const { Name, ...rest } = d.tags
 
+  let colorClass = d.tags.Color;
+  if (!colorClass && d.tags.Population) {
+    let p = d.tags.Population;
+
+    if (p > 10_000_000) {
+      colorClass = 'red'
+    } else if (p > 3_000_000) {
+      colorClass = 'orage'
+    } else if (p > 900_000) {
+      colorClass = 'yellow'
+    } else {
+      colorClass = 'blue'
+    }
+  }
+
   let color =
     {
+      red: Colors.RED4,
       blue: Colors.BLUE4,
       yellow: Colors.GOLD4,
       green: Colors.GREEN4,
       orange: Colors.ORANGE1,
-    }[d.tags.Color] || Colors.CERULEAN5
+    }[colorClass] || Colors.GOLD3
 
   let icon = L.icon({
     iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: color }),
@@ -53,7 +69,11 @@ const centerOfUkraine = [49.026638, 31.482904]
 
 const Map = ({ selectedDatasource }) => {
   return (
-    <MapContainer center={centerOfUkraine} zoom={6} scrollWheelZoom className={css.map}>
+    <MapContainer
+      center={centerOfUkraine}
+      zoom={6}
+      worldCopyJump
+      scrollWheelZoom className={css.map}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         url='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
