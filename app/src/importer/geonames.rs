@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
-use anyhow::bail;
 use crate::db::DbPool;
 
 pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result<()> {

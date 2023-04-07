@@ -7,39 +7,28 @@ Geography data mapper is a simple service that draws datasets on a map.
 
 ```mermaid
 erDiagram
-    DATASET ||--o{ DATAPOINT : has
-    DATAPOINT ||--o{ ATTRIBUTE : has
+    datasets ||--|{ datapoints : dataset_id
+    datapoints ||--|{ attributes : datapoint_id
+    datasets ||--|{ attributes : dataset_id
+
+    datasets {
+        int id PK
+        string name
+    }
+
+    datapoints {
+        int id PK
+        int dataset_id FK
+        float lng
+        float lat
+    }
     
-    DATASET {
+    attributes {
+        int id PK
+        int dataset_id FK
+        int datapoint_id FK
         string name
-    }
-    
-    DATAPOINT {
-        ref dataset_id
-        f32 lat
-        f32 lng
-    }
-
-    ATTRIBUTE {
-        ref dataset_id
-        ref datapoint_id
-        string name
-        string value
-    }
-
-    GEO_FEATURE ||--o{ GEO_FEATURE_PROPERTY : has
-
-    GEO_FEATURE {
-        string type
-        string name
-        string bbox
-        string geometry
-    }
-
-    GEO_FEATURE_PROPERTY {
-        ref geo_feature_id
-        string key
-        any value
+        float value
     }
 ```
 
