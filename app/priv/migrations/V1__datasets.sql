@@ -1,7 +1,8 @@
 CREATE TABLE datasets
 (
     id   INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    metadata TEXT NOT NULL
 );
 
 CREATE TABLE datapoints

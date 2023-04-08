@@ -11,6 +11,7 @@ tasks:
     cmds:
       - cargo run -- migrate --clean
       - cargo run -- import-geo-json ../dev-data/ne_110m_admin_0_countries.json
+      - task: cities
       - task: generate
       - task: generate
       - task: generate

@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
+use serde_json::json;
 use crate::db::DbPool;
 
 pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result<()> {
@@ -23,10 +24,25 @@ pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result
     let mut conn = db.get()?;
     let tx = conn.transaction()?;
 
+    let metadata = json!({
+        "sortable": ["Population:asc", "Population:desc"],
+        "recommendedOrder": "Population:desc",
+
+        "colorable": [{
+            "name": "Population",
+            "type": "number",
+            "min": 0,
+            "max": 10000000,
+        }],
+        "license": "https://creativecommons.org/licenses/by/4.0/",
+        "license_name": "Creative Commons Attribution 4.0 International License",
+        "license_description": "You are free to: Share — copy and redistribute the material in any medium or format; Adapt — remix, transform, and build upon the material for any purpose, even commercially. Under the following terms: Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.",
+    }).to_string();
+
     //language=SQLite
     let dataset_id: usize = tx.query_row(
-        r#"INSERT INTO datasets (name) VALUES (?1) RETURNING id"#,
-        [&name],
+        r#"INSERT INTO datasets (name, metadata) VALUES (?1, ?2) RETURNING id"#,
+        (&name, metadata),
         |r| r.get(0)
     )?;
 
@@ -63,6 +79,8 @@ pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result
     tx.commit()?;
     Ok(())
 }
+
+
 
 const GEONAMES_FIELDS: &[&str] = &[
     // integer id of record in geonames database

@@ -21,6 +21,7 @@
     "leaflet": "^1.9.3",
     "next": "^13.2.4",
     "normalize.css": "^8.0.1",
+    "qs": "^6.11.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",

@@ -1,23 +1,20 @@
-use r2d2::PooledConnection;
-use crate::db::{DbPool, SqliteConnectionManager};
+use clap::builder::Str;
+use crate::db::{DbPool};
 use rocket::serde::json::Json;
 use rocket::State;
 use serde_json::value::RawValue;
 use crate::server::dto::{Datapoint, Page};
-use rocket::form::Form;
-use rocket::form::validate::Contains;
-use rusqlite::{params, Params, params_from_iter, Row, Rows, Statement, ToSql};
-use serde::de::Error;
+use rusqlite::params_from_iter;
 
 #[derive(Debug, FromForm)]
 pub struct QueryProcessor<'a> {
     pub offset: Option<usize>,
     pub limit: Option<usize>,
     pub order_by: Option<&'a str>,
-    pub from_lng: Option<f32>,
-    pub to_lng: Option<f32>,
-    pub from_lat: Option<f32>,
-    pub to_lat: Option<f32>,
+    pub lat_max: Option<f32>,
+    pub lat_min: Option<f32>,
+    pub lng_max: Option<f32>,
+    pub lng_min: Option<f32>,
     pub dataset: i32,
 }
 
@@ -31,19 +28,19 @@ impl QueryProcessor<'_> {
 
     fn query_no_ordering(&self) -> (String, Vec<String>) {
         //language=SQLite
-        let query = r#"
+        let query = format!(r#"
             SELECT
                 d.lat,
                 d.lng,
                 x'7B' || GROUP_CONCAT( json_quote(a.name) || ':' || json_quote(a.value), ',' ) || x'7D'
             FROM attributes a
                  JOIN datapoints d ON d.id = a.datapoint_id
-            WHERE a.dataset_id = ?1
+            WHERE a.dataset_id = ?1 AND {}
             GROUP BY d.id
             ORDER BY d.id
             LIMIT ?2
             OFFSET ?3
-            "#;
+            "#, self.bbox_to_sql());
 
         let dataset = self.dataset;
         let limit = self.limit.unwrap_or(100);
@@ -83,23 +80,25 @@ impl QueryProcessor<'_> {
 
         //language=SQLite
         let query = format!(r#"
+            with ord as (
+             SELECT datapoint_id, value
+                    FROM attributes JOIN main.datapoints d2 on d2.id = attributes.datapoint_id
+                    WHERE attributes.dataset_id = ?1 AND name = ?2 and {}
+                    ORDER BY value {}
+                    LIMIT ?3
+            )
             SELECT
                 d.lat,
                 d.lng,
                 x'7B' || GROUP_CONCAT( json_quote(a.name) || ':' || json_quote(a.value), ',' ) || x'7D'
             FROM attributes a
                  JOIN datapoints d ON d.id = a.datapoint_id
-                 JOIN (
-                    SELECT datapoint_id, value
-                    FROM attributes
-                    WHERE dataset_id = ?1 AND name = ?2
-                ) ord ON ord.datapoint_id = d.id
-            WHERE a.dataset_id = ?1
+                 JOIN ord ON ord.datapoint_id = d.id
             GROUP BY d.id, ord.value
             ORDER BY ord.value {}
             LIMIT ?3
             OFFSET ?4
-            "#, ord_direction);
+            "#, self.bbox_to_sql(), ord_direction, ord_direction);
 
         (
             query,
@@ -109,6 +108,22 @@ impl QueryProcessor<'_> {
                 limit.to_string(),
                 offset.to_string(),
             ]
+        )
+    }
+
+    fn bbox_to_sql(&self) -> String {
+        let x = self.lng_min.unwrap_or(-10000f32);
+        let y = self.lat_min.unwrap_or(-10000f32);
+        let xx = self.lng_max.unwrap_or(-10000f32);
+        let yy = self.lat_max.unwrap_or(-10000f32);
+
+        if x.min(y).min(xx).min(yy) < -1000f32 {
+            return String::from("TRUE")
+        }
+
+        return format!(
+            "{} <= lng AND lng <= {} AND {} <= lat AND lat <= {}",
+            x, xx, y, yy
         )
     }
 }

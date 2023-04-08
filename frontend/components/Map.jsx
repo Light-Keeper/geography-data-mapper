@@ -1,5 +1,5 @@
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from "react";
 import L from 'leaflet'
 import { useDatapoints } from '../models/datapoints'
 import { Colors } from '@blueprintjs/core'
@@ -51,9 +51,22 @@ function buildMarker(d) {
   }).bindTooltip(tooltip)
 }
 
-const PointsLayer = ({ selectedDatasource }) => {
+const PointsLayer = ({ selectedDatasource, limit, order }) => {
   const map = useMap()
-  const { data } = useDatapoints({ datasourceId: selectedDatasource.id })
+  const [bbox, setBbox] = useState(map.getBounds());
+  const filters = useMemo(() => ({
+    lat_min: bbox.getSouth(),
+    lat_max: bbox.getNorth(),
+    lng_min: bbox.getWest(),
+    lng_max: bbox.getEast()
+  }), [bbox])
+
+  const { data } = useDatapoints({
+    datasourceId: selectedDatasource.id,
+    filters,
+    order,
+    limit
+  })
 
   useEffect(() => {
     if (!data) return
@@ -62,23 +75,27 @@ const PointsLayer = ({ selectedDatasource }) => {
     return () => markers.forEach((m) => m.remove())
   }, [map, data])
 
+  useEffect(() => {
+    map.on('moveend', () => setBbox(map.getBounds()));
+  }, [map])
   return null
 }
 
 const centerOfUkraine = [49.026638, 31.482904]
 
-const Map = ({ selectedDatasource }) => {
+const Map = ({ selectedDatasource, limit, order }) => {
   return (
     <MapContainer
       center={centerOfUkraine}
       zoom={6}
       worldCopyJump
-      scrollWheelZoom className={css.map}>
+      scrollWheelZoom
+      className={css.map}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         url='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
       />
-      {selectedDatasource && <PointsLayer selectedDatasource={selectedDatasource} />}
+      {selectedDatasource && <PointsLayer selectedDatasource={selectedDatasource} limit={limit} order={order}/>}
     </MapContainer>
   )
 }

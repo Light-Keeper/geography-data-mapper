@@ -16,8 +16,9 @@
 
   .buttons {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: stretch;
     margin-top: 1em;
   }
 }

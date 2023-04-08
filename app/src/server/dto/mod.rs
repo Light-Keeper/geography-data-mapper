@@ -12,7 +12,8 @@ pub struct Page<T> {
 #[derive(Serialize, Deserialize)]
 pub struct Datasource {
     pub id: usize,
-    pub name: String
+    pub name: String,
+    pub metadata: Box<RawValue>
 }
 
 #[derive(Serialize, Deserialize)]

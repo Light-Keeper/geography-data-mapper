@@ -30,9 +30,9 @@ pub fn generate(name: String, count: usize, color: String, country: String, pool
     let tx = conn.transaction()?;
 
     let dataset_id: usize = tx.query_row(r#"
-        INSERT INTO datasets (name)
-        VALUES (?1)
-        RETURNING id"#, (name, ), |r| r.get(0))?;
+        INSERT INTO datasets (name, metadata)
+        VALUES (?1, ?2)
+        RETURNING id"#, (name, "{}"), |r| r.get(0))?;
 
     let geometry: geo_types::Geometry<f32> = serde_json::from_str::<GeoJson>(&geo)?.try_into()?;
     let mut rng = rand::thread_rng();
