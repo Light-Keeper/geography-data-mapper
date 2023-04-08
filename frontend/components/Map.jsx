@@ -8,9 +8,7 @@ import { dataUrlForIcon } from '../lib/icon'
 import { IconNames } from '@blueprintjs/icons'
 import css from './map.module.scss'
 
-function buildMarker(d) {
-  const { Name, ...rest } = d.tags
-
+function defaultColoringFunction(d) {
   let colorClass = d.tags.Color;
   if (!colorClass && d.tags.Population) {
     let p = d.tags.Population;
@@ -35,6 +33,15 @@ function buildMarker(d) {
       orange: Colors.ORANGE1,
     }[colorClass] || Colors.GOLD3
 
+  return color;
+}
+
+function buildMarker(d, coloringFunction) {
+  const { Name, ...rest } = d.tags
+
+  coloringFunction = coloringFunction || defaultColoringFunction;
+  let color = coloringFunction(d);
+
   let icon = L.icon({
     iconUrl: dataUrlForIcon({ icon: IconNames.MAP_MARKER, color: color }),
     iconSize: [20, 20],
@@ -51,7 +58,7 @@ function buildMarker(d) {
   }).bindTooltip(tooltip)
 }
 
-const PointsLayer = ({ selectedDatasource, limit, order }) => {
+const PointsLayer = ({ selectedDatasource, limit, order, coloringFunction }) => {
   const map = useMap()
   const [bbox, setBbox] = useState(map.getBounds());
   const filters = useMemo(() => ({
@@ -70,10 +77,10 @@ const PointsLayer = ({ selectedDatasource, limit, order }) => {
 
   useEffect(() => {
     if (!data) return
-    let markers = data.map(buildMarker)
+    let markers = data.map(d => buildMarker(d, coloringFunction))
     markers.forEach((m) => m.addTo(map))
     return () => markers.forEach((m) => m.remove())
-  }, [map, data])
+  }, [map, data, coloringFunction])
 
   useEffect(() => {
     map.on('moveend', () => setBbox(map.getBounds()));
@@ -83,7 +90,7 @@ const PointsLayer = ({ selectedDatasource, limit, order }) => {
 
 const centerOfUkraine = [49.026638, 31.482904]
 
-const Map = ({ selectedDatasource, limit, order }) => {
+const Map = ({ selectedDatasource, limit, order, coloringFunction }) => {
   return (
     <MapContainer
       center={centerOfUkraine}
@@ -95,7 +102,7 @@ const Map = ({ selectedDatasource, limit, order }) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         url='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
       />
-      {selectedDatasource && <PointsLayer selectedDatasource={selectedDatasource} limit={limit} order={order}/>}
+      {selectedDatasource && <PointsLayer selectedDatasource={selectedDatasource} limit={limit} order={order} coloringFunction={coloringFunction}/>}
     </MapContainer>
   )
 }
