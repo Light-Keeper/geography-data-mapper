@@ -1,10 +1,10 @@
 import useSwr from 'swr'
 import { Toaster } from '@blueprintjs/core'
-import { apiRequest } from "../lib/api";
+import { apiRequest } from '../lib/api'
 
 export async function getDatasources() {
   const page = await apiRequest('GET', '/api/datasets')
-  return page.data;
+  return page.data
 }
 
 const ssr = typeof window === 'undefined'

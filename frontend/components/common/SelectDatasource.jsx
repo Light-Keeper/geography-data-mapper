@@ -1,7 +1,7 @@
 import { Select2 } from '@blueprintjs/select'
 import { Button, MenuItem } from '@blueprintjs/core'
 import { useDatasources } from '../../models/datasources'
-import { useEffect } from "react";
+import { useEffect } from 'react'
 
 const SelectDatasource = ({ selectedDatasource, setSelectedDatasource }) => {
   let { data, isLoading } = useDatasources()
@@ -13,7 +13,7 @@ const SelectDatasource = ({ selectedDatasource, setSelectedDatasource }) => {
     if (!someSelection && data?.length) {
       setSelectedDatasource(data[0])
     }
-  }, [data, someSelection, setSelectedDatasource]);
+  }, [data, someSelection, setSelectedDatasource])
 
   let disabled = isLoading || !data?.length
 
@@ -21,15 +21,17 @@ const SelectDatasource = ({ selectedDatasource, setSelectedDatasource }) => {
     <Select2
       popoverProps={{ minimal: true, usePortal: false }}
       items={data || []}
-      itemRenderer={(item, { handleClick, handleFocus }) => <MenuItem
-        key={item.id}
-        text={item.name}
-        onClick={handleClick}
-        onFocus={handleFocus}
-        active={item.id === selectedDatasource?.id}
-        roleStructure="listoption"
-        icon={item.id === selectedDatasource?.id ? 'tick' : 'blank'}
-      />}
+      itemRenderer={(item, { handleClick, handleFocus }) => (
+        <MenuItem
+          key={item.id}
+          text={item.name}
+          onClick={handleClick}
+          onFocus={handleFocus}
+          active={item.id === selectedDatasource?.id}
+          roleStructure='listoption'
+          icon={item.id === selectedDatasource?.id ? 'tick' : 'blank'}
+        />
+      )}
       onItemSelect={setSelectedDatasource}
       filterable={false}
     >

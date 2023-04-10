@@ -14,7 +14,7 @@ export function dataUrlForIcon({ icon, color }) {
 
 function createDataUrlForIcon({ icon, color }) {
   const pathsRaw = IconSvgPaths20[iconNameToPathsRecordKey(icon)]
-  const paths = pathsRaw.map((path, i) => <path key={i} d={path} fillRule='evenodd' clipRule="evenodd" />)
+  const paths = pathsRaw.map((path, i) => <path key={i} d={path} fillRule='evenodd' clipRule='evenodd' />)
 
   const svg = (
     <svg
