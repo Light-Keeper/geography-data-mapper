@@ -20,7 +20,7 @@ tasks:
     desc: Run all linters
     cmds:
       - task: fmt
-      - task: clippy
+      - task: lint
 
   reset:
     desc: Clean the project

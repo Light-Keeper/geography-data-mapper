@@ -47,8 +47,15 @@ tasks:
     cmds:
       - task: infra:deploy
 
+  lintall:
+    desc: Lint the app
+    cmds:
+      - task: frontend:lintall
+      - task: app:lintall
+
   all:
     desc: Build and deploy the app
     cmds:
+      - task: lintall
       - task: build
       - task: deploy
