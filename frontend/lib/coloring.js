@@ -13,7 +13,7 @@ const colorMap = {
 const defaultColor = Colors.GRAY5
 
 const colorByTag = (d) => {
-  const color = colorMap[d.tags.color]
+  const color = colorMap[d.tags.Color]
   return color || defaultColor
 }
 
