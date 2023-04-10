@@ -3,5 +3,5 @@ use rocket::State;
 
 #[get("/hello")]
 pub fn hello(_db: &State<DbPool>) -> String {
-    return format!("Hello, world! SQLite version: {}", "123");
+    format!("Hello, world! SQLite version: {}", "123")
 }

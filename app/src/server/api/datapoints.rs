@@ -1,6 +1,6 @@
 use crate::db::DbPool;
 use crate::server::dto::{Datapoint, Page};
-use clap::builder::Str;
+
 use rocket::serde::json::Json;
 use rocket::State;
 use rusqlite::params_from_iter;
@@ -50,7 +50,7 @@ impl QueryProcessor<'_> {
         let offset = self.offset.unwrap_or(0);
 
         (
-            String::from(query),
+            query,
             vec![dataset.to_string(), limit.to_string(), offset.to_string()],
         )
     }
@@ -63,7 +63,7 @@ impl QueryProcessor<'_> {
 
         let mut ord = order_by
             .splitn(2, ':')
-            .map(|s| String::from(s))
+            .map(String::from)
             .collect::<Vec<String>>();
 
         if ord.len() < 2 {
@@ -125,10 +125,10 @@ impl QueryProcessor<'_> {
             return String::from("TRUE");
         }
 
-        return format!(
+        format!(
             "{} <= lng AND lng <= {} AND {} <= lat AND lat <= {}",
             x, xx, y, yy
-        );
+        )
     }
 }
 
@@ -151,10 +151,10 @@ pub fn datapoints(qparams: QueryProcessor, db: &State<DbPool>) -> Json<Page<Data
         .map(|x| x.unwrap())
         .collect();
 
-    return Json(Page {
+    Json(Page {
         limit: 0,
         offset: 0,
         more: false,
         data: vec1,
-    });
+    })
 }

@@ -13,7 +13,7 @@ pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result
         .map(|line| {
             line.split('\t')
                 .map(String::from)
-                .zip(GEONAMES_FIELDS.iter().map(|s| *s))
+                .zip(GEONAMES_FIELDS.iter().copied())
                 .collect::<Vec<(String, &str)>>()
         });
 

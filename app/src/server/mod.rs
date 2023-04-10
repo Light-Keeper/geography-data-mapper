@@ -8,10 +8,10 @@ use rocket::{Request, Response};
 mod api;
 mod dto;
 
-pub struct CORS;
+pub struct Cors;
 
 #[rocket::async_trait]
-impl Fairing for CORS {
+impl Fairing for Cors {
     fn info(&self) -> Info {
         Info {
             name: "Attaching CORS headers to responses",
@@ -39,7 +39,7 @@ pub async fn start_server(cfg: AppConfig, pool: DbPool) {
     ];
 
     rocket::build()
-        .attach(CORS)
+        .attach(Cors)
         .manage(pool)
         .mount("/", FileServer::from(cfg.static_files_dir))
         .mount("/api", api)
