@@ -1,8 +1,8 @@
+use crate::db::DbPool;
+use serde_json::json;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
-use serde_json::json;
-use crate::db::DbPool;
 
 pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result<()> {
     let file = File::open(from)?;
@@ -10,16 +10,26 @@ pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result
     let cities = io::BufReader::new(file)
         .lines()
         .map(|line| line.unwrap())
-        .map(|line| line.split('\t')
-            .map(String::from)
-            .zip(GEONAMES_FIELDS.iter().map(|s| *s))
-            .collect::<Vec<(String, &str)>>()
-        );
+        .map(|line| {
+            line.split('\t')
+                .map(String::from)
+                .zip(GEONAMES_FIELDS.iter().map(|s| *s))
+                .collect::<Vec<(String, &str)>>()
+        });
 
     let name_index = GEONAMES_FIELDS.iter().position(|&s| s == "name").unwrap();
-    let lat_index = GEONAMES_FIELDS.iter().position(|&s| s == "latitude").unwrap();
-    let lng_index = GEONAMES_FIELDS.iter().position(|&s| s == "longitude").unwrap();
-    let population_index = GEONAMES_FIELDS.iter().position(|&s| s == "population").unwrap();
+    let lat_index = GEONAMES_FIELDS
+        .iter()
+        .position(|&s| s == "latitude")
+        .unwrap();
+    let lng_index = GEONAMES_FIELDS
+        .iter()
+        .position(|&s| s == "longitude")
+        .unwrap();
+    let population_index = GEONAMES_FIELDS
+        .iter()
+        .position(|&s| s == "population")
+        .unwrap();
 
     let mut conn = db.get()?;
     let tx = conn.transaction()?;
@@ -43,7 +53,7 @@ pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result
     let dataset_id: usize = tx.query_row(
         r#"INSERT INTO datasets (name, metadata) VALUES (?1, ?2) RETURNING id"#,
         (&name, metadata),
-        |r| r.get(0)
+        |r| r.get(0),
     )?;
 
     for city in cities {
@@ -57,30 +67,38 @@ pub fn import_geonames(from: String, name: String, db: DbPool) -> anyhow::Result
         let population = population.parse::<i64>()?;
 
         //language=SQLite
-        let datapoint_id: usize = tx.query_row(r#"
+        let datapoint_id: usize = tx.query_row(
+            r#"
             INSERT INTO datapoints (dataset_id, lng, lat)
             VALUES (?1, ?2, ?3)
             RETURNING id
-            "#, (dataset_id, lng, lat), |r| r.get(0))?;
+            "#,
+            (dataset_id, lng, lat),
+            |r| r.get(0),
+        )?;
 
         //language=SQLite
-        tx.execute(r#"
+        tx.execute(
+            r#"
             INSERT INTO attributes (dataset_id, datapoint_id, name, value)
             VALUES (?1, ?2, 'Name', ?3)
-            "#, (dataset_id, datapoint_id, name))?;
+            "#,
+            (dataset_id, datapoint_id, name),
+        )?;
 
         //language=SQLite
-        tx.execute(r#"
+        tx.execute(
+            r#"
             INSERT INTO attributes (dataset_id, datapoint_id, name, value)
             VALUES (?1, ?2, 'Population', ?3)
-            "#, (dataset_id, datapoint_id, population))?;
+            "#,
+            (dataset_id, datapoint_id, population),
+        )?;
     }
 
     tx.commit()?;
     Ok(())
 }
-
-
 
 const GEONAMES_FIELDS: &[&str] = &[
     // integer id of record in geonames database

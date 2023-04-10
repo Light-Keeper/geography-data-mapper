@@ -21,7 +21,6 @@ pub fn import_geojson(from: String, db: DbPool) -> anyhow::Result<()> {
             ON CONFLICT DO UPDATE SET value=?3"#,
     )?;
 
-
     let j: GeoJson = std::fs::read_to_string(from)?.parse()?;
     let f = FeatureCollection::try_from(j)?;
 
@@ -33,10 +32,10 @@ pub fn import_geojson(from: String, db: DbPool) -> anyhow::Result<()> {
         let bbox = serde_json::to_string(f.bbox.as_ref().unwrap())?;
         let geometry = serde_json::to_string(f.geometry.as_ref().unwrap())?;
 
-        let geo_feature_id: usize = s1.query_row(
-            (feature_type, feature_name, &bbox, &geometry),
-            |row| { row.get(0) },
-        )?;
+        let geo_feature_id: usize = s1
+            .query_row((feature_type, feature_name, &bbox, &geometry), |row| {
+                row.get(0)
+            })?;
 
         for (key, v) in p {
             if !INTERESTING_KEYS.contains(&key.as_str()) {
@@ -46,7 +45,7 @@ pub fn import_geojson(from: String, db: DbPool) -> anyhow::Result<()> {
             let s = match v {
                 Value::Number(n) => Some(n.to_string()),
                 Value::String(s) => Some(s.clone()),
-                _ => None
+                _ => None,
             };
 
             if let Some(s) = s {
@@ -57,7 +56,6 @@ pub fn import_geojson(from: String, db: DbPool) -> anyhow::Result<()> {
 
     Ok(())
 }
-
 
 const INTERESTING_KEYS: &[&str] = &[
     "LABEL_X",

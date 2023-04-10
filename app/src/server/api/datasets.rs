@@ -1,8 +1,8 @@
 use crate::db::DbPool;
+use crate::server::dto::{Datasource, Page};
 use rocket::serde::json::Json;
 use rocket::State;
 use serde_json::value::RawValue;
-use crate::server::dto::{Datasource, Page};
 
 #[get("/datasets")]
 pub fn datasets(db: &State<DbPool>) -> Json<Page<Datasource>> {
@@ -12,13 +12,19 @@ pub fn datasets(db: &State<DbPool>) -> Json<Page<Datasource>> {
     let sql = r#"SELECT id, name, metadata FROM datasets"#;
 
     let data = conn
-        .prepare_cached(sql).unwrap()
-        .query([]).unwrap()
+        .prepare_cached(sql)
+        .unwrap()
+        .query([])
+        .unwrap()
         .mapped(|row| {
             let id: usize = row.get(0)?;
             let name: String = row.get(1)?;
             let metadata: String = row.get(2)?;
-            Ok(Datasource { id, name, metadata: RawValue::from_string(metadata).unwrap() })
+            Ok(Datasource {
+                id,
+                name,
+                metadata: RawValue::from_string(metadata).unwrap(),
+            })
         })
         .map(|r| r.unwrap())
         .collect();
@@ -27,6 +33,6 @@ pub fn datasets(db: &State<DbPool>) -> Json<Page<Datasource>> {
         limit: 0,
         offset: 0,
         more: false,
-        data
+        data,
     })
 }

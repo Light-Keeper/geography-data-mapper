@@ -1,10 +1,10 @@
+use crate::db::DbPool;
+use crate::server::dto::{Datapoint, Page};
 use clap::builder::Str;
-use crate::db::{DbPool};
 use rocket::serde::json::Json;
 use rocket::State;
-use serde_json::value::RawValue;
-use crate::server::dto::{Datapoint, Page};
 use rusqlite::params_from_iter;
+use serde_json::value::RawValue;
 
 #[derive(Debug, FromForm)]
 pub struct QueryProcessor<'a> {
@@ -22,13 +22,14 @@ impl QueryProcessor<'_> {
     pub fn query(&self) -> (String, Vec<String>) {
         match self.order_by {
             None => self.query_no_ordering(),
-            Some(_) => self.query_with_ordering()
+            Some(_) => self.query_with_ordering(),
         }
     }
 
     fn query_no_ordering(&self) -> (String, Vec<String>) {
         //language=SQLite
-        let query = format!(r#"
+        let query = format!(
+            r#"
             SELECT
                 d.lat,
                 d.lng,
@@ -40,7 +41,9 @@ impl QueryProcessor<'_> {
             ORDER BY d.id
             LIMIT ?2
             OFFSET ?3
-            "#, self.bbox_to_sql());
+            "#,
+            self.bbox_to_sql()
+        );
 
         let dataset = self.dataset;
         let limit = self.limit.unwrap_or(100);
@@ -48,11 +51,7 @@ impl QueryProcessor<'_> {
 
         (
             String::from(query),
-            vec![
-                dataset.to_string(),
-                limit.to_string(),
-                offset.to_string(),
-            ]
+            vec![dataset.to_string(), limit.to_string(), offset.to_string()],
         )
     }
 
@@ -63,7 +62,7 @@ impl QueryProcessor<'_> {
         let offset = self.offset.unwrap_or(0);
 
         let mut ord = order_by
-            .splitn(2,':')
+            .splitn(2, ':')
             .map(|s| String::from(s))
             .collect::<Vec<String>>();
 
@@ -79,7 +78,8 @@ impl QueryProcessor<'_> {
         }
 
         //language=SQLite
-        let query = format!(r#"
+        let query = format!(
+            r#"
             with ord as (
              SELECT datapoint_id, value
                     FROM attributes JOIN main.datapoints d2 on d2.id = attributes.datapoint_id
@@ -98,7 +98,11 @@ impl QueryProcessor<'_> {
             ORDER BY ord.value {}
             LIMIT ?3
             OFFSET ?4
-            "#, self.bbox_to_sql(), ord_direction, ord_direction);
+            "#,
+            self.bbox_to_sql(),
+            ord_direction,
+            ord_direction
+        );
 
         (
             query,
@@ -107,7 +111,7 @@ impl QueryProcessor<'_> {
                 ord_field,
                 limit.to_string(),
                 offset.to_string(),
-            ]
+            ],
         )
     }
 
@@ -118,13 +122,13 @@ impl QueryProcessor<'_> {
         let yy = self.lat_max.unwrap_or(-10000f32);
 
         if x.min(y).min(xx).min(yy) < -1000f32 {
-            return String::from("TRUE")
+            return String::from("TRUE");
         }
 
         return format!(
             "{} <= lng AND lng <= {} AND {} <= lat AND lat <= {}",
             x, xx, y, yy
-        )
+        );
     }
 }
 
@@ -137,12 +141,14 @@ pub fn datapoints(qparams: QueryProcessor, db: &State<DbPool>) -> Json<Page<Data
     let rows = stmt.query(params_from_iter(params.into_iter())).unwrap();
 
     let vec1 = rows
-        .mapped(|r| Ok(Datapoint {
-            lat: r.get(0)?,
-            lng: r.get(1)?,
-            tags: RawValue::from_string(r.get::<_, String>(2)?).unwrap(),
-        }))
-        .map(|x|x.unwrap())
+        .mapped(|r| {
+            Ok(Datapoint {
+                lat: r.get(0)?,
+                lng: r.get(1)?,
+                tags: RawValue::from_string(r.get::<_, String>(2)?).unwrap(),
+            })
+        })
+        .map(|x| x.unwrap())
         .collect();
 
     return Json(Page {

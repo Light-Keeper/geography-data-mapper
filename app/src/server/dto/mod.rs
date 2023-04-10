@@ -1,4 +1,4 @@
-use rocket::serde::{Serialize, Deserialize};
+use rocket::serde::{Deserialize, Serialize};
 use serde_json::value::RawValue;
 
 #[derive(Serialize, Deserialize)]
@@ -13,7 +13,7 @@ pub struct Page<T> {
 pub struct Datasource {
     pub id: usize,
     pub name: String,
-    pub metadata: Box<RawValue>
+    pub metadata: Box<RawValue>,
 }
 
 #[derive(Serialize, Deserialize)]
