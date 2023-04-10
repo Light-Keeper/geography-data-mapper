@@ -25,30 +25,6 @@ function HomePage() {
   const [selectedDatasource, setSelectedDatasource] = useState(undefined);
   const [limit, setLimit] = useState(100);
   const [order, setOrder] = useState(undefined);
-  
-  const [{ colorFromVal, colorToVal, colorFromColor, colorToColor }, setColoring] = useState({
-    colorFromColor: parseColor(Colors.GREEN4),
-    colorToColor: parseColor(Colors.RED4),
-    colorFromVal: 1000,
-    colorToVal: 3_000_000,
-  });
-
-  const coloringFunction = useCallback((datapoint) => {
-    let val = datapoint?.tags?.Population || 0
-    if (val < colorFromVal) val = colorFromVal;
-    if (val > colorToVal) val = colorToVal;
-
-    const from = colorFromVal;
-    const to = colorToVal;
-    const colorFrom = colorFromColor;
-    const colorTo = colorToColor;
-
-    const color = (from - val) / (from - to);
-    const r = Math.round(colorFrom[0] + color * (colorTo[0] - colorFrom[0]));
-    const g = Math.round(colorFrom[1] + color * (colorTo[1] - colorFrom[1]));
-    const b = Math.round(colorFrom[2] + color * (colorTo[2] - colorFrom[2]));
-    return `rgb(${r}, ${g}, ${b})`;
-  }, [colorFromColor, colorFromVal, colorToColor, colorToVal]);
 
   useEffect(() => {
     setOrder(selectedDatasource?.metadata?.recommendedOrder)
@@ -82,7 +58,7 @@ function HomePage() {
         </div>
       </div>
       <div className={css.main}>
-        <MapWithNoSSR selectedDatasource={selectedDatasource} limit={limit} order={order} coloringFunction={coloringFunction}/>
+        <MapWithNoSSR selectedDatasource={selectedDatasource} limit={limit} order={order}/>
       </div>
     </div>
   )
