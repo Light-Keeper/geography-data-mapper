@@ -62,8 +62,6 @@ pub enum Commands {
         /// file with data to import
         file: String,
     },
-
-
 }
 
 pub fn parse_config() -> anyhow::Result<AppConfig> {
